@@ -1,3 +1,4 @@
+import os
 import argparse
 
 from flask import Flask, request
@@ -73,11 +74,11 @@ def get_sign_position():
     # TODO: Return pdf file...
 
     # Remove all file
-    # os.remove(doc_path)
-    # os.remove(origin_pdf_path)
-    # os.remove(process_doc_path)
-    # os.remove(process_pdf_path)
-    # print('Removed all files!')
+    os.remove(doc_path)
+    os.remove(origin_pdf_path)
+    os.remove(process_doc_path)
+    os.remove(process_pdf_path)
+    print('Removed all files!')
 
     return {
         "state": "success",
