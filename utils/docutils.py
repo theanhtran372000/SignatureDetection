@@ -25,7 +25,7 @@ def remove_datetime(doc):
 
 
 def remove_docnum(doc):
-    regex = re.compile(r"Số:.{0,20}/\w{2,10}")
+    regex = re.compile(r"Số:.{0,20}/[^\s\n\t]{2,15}")
     replace = " " * 10
     doc = docx_replace_regex(doc, regex, replace)
     return doc

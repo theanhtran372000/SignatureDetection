@@ -1,7 +1,7 @@
 import os
 import argparse
 
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask_cors import CORS
 
 from utils import doc_to_docx, docx_to_pdf
@@ -18,16 +18,17 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @app.route('/get_sign_position', methods=['POST'])
 def get_sign_position():
 
-    # Get request body data
-    content = request.get_json()
-    # TODO: Get file from request and save to local ...
-
     # Extract info from request
-    doc_path = content['path']
+    file = request.files['file']
+    file.save(os.path.join(args.save_dir, file.filename))
+    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+
+    content = request.form
     sign_type = content['sign_type']
     sign_name = content['sign_name']
 
     print('Get request:')
+    print('- File: ', file.filename)
     print('- Doc path: {}'.format(doc_path))
     print('- Sign type: {}'.format(sign_type))
     print('- Sign name: {}'.format(sign_name))
@@ -54,13 +55,6 @@ def get_sign_position():
     origin_pdf_path = doc_path.replace('.docx', '_origin.pdf')
     docx_to_pdf(doc_path, origin_pdf_path)
 
-    # Remove redundant words in word
-    print('= Remove redundant words')
-    process_doc_path = doc_path.replace('.docx', '_process.docx')
-    preprocess_doc(doc_path, process_doc_path)
-    process_pdf_path = doc_path.replace('.docx', '_process.pdf')
-    process_pdf_path = docx_to_pdf(process_doc_path, process_pdf_path)
-
     # Find coord on origin doc
     sign_map = {
         'van_thu': VAN_THU,
@@ -71,19 +65,44 @@ def get_sign_position():
     print('= Find sign position')
     results = tim_vi_tri(origin_pdf_path, sign_map[sign_type], sign_name)
 
-    # TODO: Return pdf file...
-
     # Remove all file
     os.remove(doc_path)
     os.remove(origin_pdf_path)
-    os.remove(process_doc_path)
-    os.remove(process_pdf_path)
     print('Removed all files!')
 
     return {
         "state": "success",
-        "results": results
+        "results": results,
     }
+
+
+@app.route('/convert', methods=["POST"])
+def to_pdf():
+    # Extract info from request
+    file = request.files['file']
+    file.save(os.path.join(args.save_dir, file.filename))
+    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+
+    print('Get request:')
+    print('- File: ', file.filename)
+    print()
+
+    # Preprocess file
+    print('= Remove redundant words')
+    process_doc_path = doc_path.replace('.docx', '_process.docx')
+    preprocess_doc(doc_path, process_doc_path)
+
+    # Convert to pdf
+    print('= Convert to PDF')
+    process_pdf_path = doc_path.replace('.docx', '_process.pdf')
+    process_pdf_path = docx_to_pdf(process_doc_path, process_pdf_path)
+
+    # Remove all file
+    os.remove(doc_path)
+    os.remove(process_doc_path)
+    print('Removed all files!')
+
+    return send_file(process_pdf_path)
 
 
 def get_parser():
@@ -91,11 +110,16 @@ def get_parser():
 
     parser.add_argument('--port', type=int, default=2000,
                         help='Listening port')
+    parser.add_argument('--save_dir', type=str,
+                        default='saved', help='Saving directory')
 
     return parser
 
 
 def main(args):
+
+    # Make save dir
+    os.makedirs(args.save_dir, exist_ok=True)
 
     # Run app
     app.run(host='0.0.0.0', port=args.port)

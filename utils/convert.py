@@ -7,8 +7,10 @@ from win32com.client import constants
 
 
 def doc_to_docx(path):
+    print(path)
     # Opening MS Word
-    word = win32.gencache.EnsureDispatch('Word.Application')
+    word = win32.gencache.EnsureDispatch(
+        'Word.Application', pythoncom.CoInitialize())
     doc = word.Documents.Open(path)
     doc.Activate()
 
