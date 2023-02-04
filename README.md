@@ -16,7 +16,8 @@ python -m main \
     --save_dir[Đường dẫn tới thư mục lưu trữ]
 ```
 
-## Tìm vị trí ký
+## Hướng dẫn sử dụng
+### 1. Tìm vị trí ký
 
 **Định dạng yêu cầu**
 
@@ -64,7 +65,7 @@ python -m main \
 }
 ```
 
-## Chuyển đổi file
+### 2. Chuyển đổi file
 
 **Định dạng yêu cầu**
 
@@ -79,3 +80,21 @@ python -m main \
 **Định dạng phản hồi**
 
 Trả về file PDF đã được xóa vị trí ngày tháng và số hiệu văn bản
+
+### 3. Xem trước vị trí ký
+
+**Định dạng yêu cầu**
+
+- API: /get_sign_position
+- Method: POST
+- Content-Type: form-data
+
+```
+"file": <File doc/docx>
+"path": "Đường dẫn tới file",
+"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay)",
+"sign_name": "Tên người cần tìm (nếu cần)"
+```
+**Định dạng phản hồi**
+
+Trả về file PDF đã được đánh dấu vị trí ký
