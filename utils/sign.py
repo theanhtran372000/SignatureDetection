@@ -4,9 +4,9 @@ from .draw import draw_rect
 import time
 from datetime import timedelta
 
-VAN_THU = 0
-KY_NHAY = 1
-KY_CHINH = 2
+# VAN_THU = 0
+# KY_NHAY = 1
+# KY_CHINH = 2
 
 
 # Lấy tọa độ cho văn thư
@@ -21,7 +21,7 @@ def van_thu(file_path, name):
     keywords = ['Số:', '/']
     ans = find_coordinates(file_path, keywords)
     if len(ans) == 0:
-        raise Exception('Không tìm thấy {}!'.format(keywords))
+        return "doc_number_error"
 
     # Hiệu chỉnh tọa độ
     coords = ans[0]['coords']
@@ -44,7 +44,7 @@ def van_thu(file_path, name):
     ]
     ans = find_coordinates(file_path, keywords)
     if len(ans) == 0:
-        raise Exception('Không tìm thấy {}!'.format(keywords))
+        return "doc_date_error"
 
     # Hiệu chỉnh tọa độ
     coords = ans[0]['coords']
@@ -65,12 +65,12 @@ def van_thu(file_path, name):
     ]
     ans = find_coordinates(file_path, keywords)
     if len(ans) == 0:
-        raise Exception('Không tìm thấy {}!'.format(keywords))
+        return 'doc_name_error'
 
     # Hiệu chỉnh tọa độ
     coords = ans[0]['coords']
     coords = (
-        coords[0],
+        coords[0] - 20,
         coords[1] - 110
     )
 
@@ -96,7 +96,7 @@ def ky_nhay(file_path):
     keywords = ['/.']
     ans = find_coordinates(file_path, keywords, 'r')
     if len(ans) == 0:
-        raise Exception('Không tìm thấy {}!'.format(keywords))
+        return 'doc_name_error'
 
     # Hiệu chỉnh tọa độ
     coords = ans[0]['coords']
@@ -127,7 +127,7 @@ def ky_chinh(file_path, name):
     keywords = [name]
     ans = find_coordinates(file_path, keywords)
     if len(ans) == 0:
-        raise Exception('Không tìm thấy {}!'.format(keywords))
+        return 'doc_name_error'
 
     # Hiệu chỉnh tọa độ
     coords = ans[0]['coords']
@@ -147,18 +147,18 @@ def ky_chinh(file_path, name):
 
 
 def tim_vi_tri(file_path, sign_type, sign_name):
-    if sign_type == VAN_THU:
+    if sign_type == 'van_thu':
         return van_thu(file_path, sign_name)
 
-    elif sign_type == KY_NHAY:
+    elif sign_type == 'ky_nhay':
         return ky_nhay(file_path)
 
-    elif sign_type == KY_CHINH:
+    elif sign_type == 'ky_chinh':
         return ky_chinh(file_path, sign_name)
 
     else:
         print('Không tồn tại loại ký {}!'.format(sign_type))
-        return
+        return "sign_type_error"
 
 
 if __name__ == '__main__':
