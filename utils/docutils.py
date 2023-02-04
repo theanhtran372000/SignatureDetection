@@ -18,7 +18,7 @@ def docx_replace_regex(doc, regex, replace):
 
 
 def remove_datetime(doc):
-    regex = re.compile(r"Hà Nội.{0,10}ngày.{0,10}tháng.{0,10}năm")
+    regex = re.compile(r"Hà Nội.{0,10}ngày.{0,10}tháng.{0,10}năm.{0,10}")
     replace = " " * 10
     doc = docx_replace_regex(doc, regex, replace)
     return doc
