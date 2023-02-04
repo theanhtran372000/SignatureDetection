@@ -27,8 +27,7 @@ python -m main \
 
 ```
 "file": <File doc/docx>
-"path": "Đường dẫn tới file",
-"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay)",
+"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay)"
 "sign_name": "Tên người cần tìm (nếu cần)"
 ```
 
@@ -91,8 +90,7 @@ Trả về file PDF đã được xóa vị trí ngày tháng và số hiệu v�
 
 ```
 "file": <File doc/docx>
-"path": "Đường dẫn tới file",
-"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay)",
+"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay)"
 "sign_name": "Tên người cần tìm (nếu cần)"
 ```
 **Định dạng phản hồi**
