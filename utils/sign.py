@@ -24,7 +24,7 @@ def van_thu(file_path, name):
         return "doc_number_error"
 
     # Hiệu chỉnh tọa độ
-    coords = ans[0]['coords']
+    coords = ans[0]['coords'] # Lấy kết quả đầu tìm được
     coords = (
         coords[0] - 5,
         coords[1] - 5
@@ -47,7 +47,7 @@ def van_thu(file_path, name):
         return "doc_date_error"
 
     # Hiệu chỉnh tọa độ
-    coords = ans[0]['coords']
+    coords = ans[0]['coords'] # Lấy kết quả đầu tìm được
     coords = (
         coords[0] - 5,
         coords[1] - 5
@@ -68,7 +68,7 @@ def van_thu(file_path, name):
         return 'doc_name_error'
 
     # Hiệu chỉnh tọa độ
-    coords = ans[0]['coords']
+    coords = ans[-1]['coords'] # Lấy kết quả cuối tìm được
     coords = (
         coords[0] - 20,
         coords[1] - 110
@@ -76,7 +76,7 @@ def van_thu(file_path, name):
 
     results['dong_dau'] = {
         "coords": coords,
-        "page_num": ans[0]['page_num']
+        "page_num": ans[-1]['page_num']
     }
 
     print('Hoàn thành sau {}s!'.format(
@@ -99,7 +99,7 @@ def ky_nhay(file_path):
         return 'doc_name_error'
 
     # Hiệu chỉnh tọa độ
-    coords = ans[0]['coords']
+    coords = ans[-1]['coords']   # Lấy kết quả cuối tìm được
     coords = (
         coords[0] + 15,
         coords[1] - 5
@@ -107,7 +107,7 @@ def ky_nhay(file_path):
 
     results['ky_nhay'] = {
         "coords": coords,
-        "page_num": ans[0]['page_num']
+        "page_num": ans[-1]['page_num']
     }
 
     print('Hoàn thành sau {}s!'.format(
@@ -130,7 +130,7 @@ def ky_chinh(file_path, name):
         return 'doc_name_error'
 
     # Hiệu chỉnh tọa độ
-    coords = ans[0]['coords']
+    coords = ans[-1]['coords'] # Lấy kết quả cuối tìm được
     coords = (
         coords[0],
         coords[1] - 110
@@ -138,7 +138,7 @@ def ky_chinh(file_path, name):
 
     results['ky_chinh'] = {
         "coords": coords,
-        "page_num": ans[0]['page_num']
+        "page_num": ans[-1]['page_num']
     }
 
     print('Hoàn thành sau {}s!'.format(
