@@ -5,13 +5,16 @@
 1. Thiết lập môi trường
 
 ```
+sudo apt install libreoffice -y
+
+pip install -U pip setuptools
 pip install -r requirements.txt
 ```
 
 2. Chạy server
 
 ```
-python -m main \
+python main.py \
     --port=[Cổng chạy server] \
     --save_dir[Đường dẫn tới thư mục lưu trữ]
 ```
