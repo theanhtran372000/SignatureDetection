@@ -28,6 +28,7 @@ def get_sign_position():
     content = request.form
     sign_type = content['sign_type']
     sign_name = content['sign_name']
+    sign_name = [name.strip() for name in sign_name.split(',')]
 
     print('Get request:')
     print('- File: ', file.filename)
@@ -40,32 +41,19 @@ def get_sign_position():
 
     print('= Validate file extention')
     ext = doc_path.split('.')[-1]
-    if ext not in ['doc', 'docx']:
+    if ext not in ['doc', 'docx', 'pdf']:
         print("{} not supported!".format(ext))
         return {
             "state": 'error',
             "message": "{} not supported!".format(ext)
         }, 400
 
-    # # Convert from doc to docx
-    # if ext == 'doc':
-    #     print('= Convert file to docx')
-    #     doc_path = doc_to_docx(doc_path)
-
-    # # Convert from docx to pdf
-    # print('= Convert file to pdf')
-    # origin_pdf_path = doc_path.replace('.docx', '_origin.pdf')
-    # docx_to_pdf(doc_path, origin_pdf_path)
-    print('= Convert file to pdf')
-    origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
-
-    # Find coord on origin doc
-    # sign_map = {
-    #     'van_thu': VAN_THU,
-    #     'ky_nhay': KY_NHAY,
-    #     'ky_chinh': KY_CHINH
-    # }
-
+    if ext != 'pdf':
+        print('= Convert file to pdf')
+        origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
+    else:
+        origin_pdf_path = doc_path
+    
     print('= Find sign position')
     results = tim_vi_tri(origin_pdf_path, sign_type, sign_name)
     if type(results) == str:
@@ -86,7 +74,8 @@ def get_sign_position():
         
     # Remove all file
     os.remove(doc_path)
-    os.remove(origin_pdf_path)
+    if origin_pdf_path != doc_path:
+        os.remove(origin_pdf_path)
     print('Removed all files!')
 
     return {
@@ -105,6 +94,7 @@ def preview_sign_position():
     content = request.form
     sign_type = content['sign_type']
     sign_name = content['sign_name']
+    sign_name = [name.strip() for name in sign_name.split(',')]
 
     print('Get request:')
     print('- File: ', file.filename)
@@ -117,26 +107,19 @@ def preview_sign_position():
 
     print('= Validate file extention')
     ext = doc_path.split('.')[-1]
-    if ext not in ['doc', 'docx']:
+    if ext not in ['doc', 'docx', 'pdf']:
         print("{} not supported!".format(ext))
         return {
             "state": 'error',
             "message": "{} not supported!".format(ext)
         }, 400
 
-    # # Convert from doc to docx
-    # if ext == 'doc':
-    #     print('= Convert file to docx')
-    #     doc_path = doc_to_docx(doc_path)
-
-    # # Convert from docx to pdf
-    # print('= Convert file to pdf')
-    # origin_pdf_path = doc_path.replace('.docx', '_origin.pdf')
-    # docx_to_pdf(doc_path, origin_pdf_path)
-    print('= Convert file to pdf')
-    origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
-
-    # Find coord on origin doc
+    if ext != 'pdf':
+        print('= Convert file to pdf')
+        origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
+    else:
+        origin_pdf_path = doc_path
+    
     print('= Find sign position')
     results = tim_vi_tri(origin_pdf_path, sign_type, sign_name)
     if type(results) == str:
@@ -155,7 +138,15 @@ def preview_sign_position():
             "message": msg
         }, 400
     
-    coords = list(results.values())
+    coords = []
+    
+    for e in list(results.values()):
+        if 'coords' in e:
+            coords.append(e)
+        else:
+            for _e in list(e.values()):
+                if 'coords' in _e:
+                    coords.append(_e)
     dest_path = os.path.join(args.save_dir, 'result.pdf')
     
     # Preview
@@ -164,7 +155,8 @@ def preview_sign_position():
     
     # Remove all file
     os.remove(doc_path)
-    os.remove(origin_pdf_path)
+    if origin_pdf_path != doc_path:
+        os.remove(origin_pdf_path)
     print('Removed all files!')
 
     return send_file(dest_path), 200
@@ -182,6 +174,13 @@ def to_pdf():
 
     # Convert doc to docx
     ext = file.filename.split('.')[-1]
+    if ext not in ['doc', 'docx']:
+        print("{} not supported!".format(ext))
+        return {
+            "state": 'error',
+            "message": "{} not supported!".format(ext)
+        }, 400
+    
     if ext == 'doc':
         print('= Convert to docx')
         doc_path = linux_to_docx(doc_path, args.save_dir)

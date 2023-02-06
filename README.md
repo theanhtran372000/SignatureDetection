@@ -30,35 +30,59 @@ python main.py \
 
 ```
 "file": <File doc/docx>
-"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay)"
-"sign_name": "Tên người cần tìm (nếu cần)"
+"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay, toan_bo)"
+"sign_name": "Tên người cần tìm phân tách bởi dấu phẩy "," (nếu cần)"
+             "Tên người ký chính ở đầu, phía sau là người ký đồng trình"
 ```
 
 **Định dạng phản hồi**
 
 ```
-// Ví dụ cho phản hồi của kiểu ký van_thu
-// Với kiểu ky_chinh va ky_nhay, định dang data tương tự
+// Ví dụ cho phản hồi của kiểu ký toan_bo
+// Với kiểu ky_chinh, ky_nhay và van_thu, định dang data tương tự
 {
-    "results": {                       # Trả về danh sách vị trí
-        "dong_dau": {                  # Vị trí đóng dấu
-            "coords": [                # Tọa độ
-                158.3,
-                433.05608000000007
-            ],
-            "page_num": 0              # Số trang (bắt đầu từ 0)
-        },
-        "ngay_thang": {                # Vị trí ngày tháng
+    "results": {
+        "dong_dau": {
             "coords": [
-                334.07,
-                98.58575999999994
+                376.4,
+                392.170763779528
+            ],
+            "page_num": 0
+        },
+        "ky_chinh": {
+            "coords": [
+                396.4,
+                392.170763779528
+            ],
+            "page_num": 0
+        },
+        "ky_dong_trinh": {
+            "Lê Minh Hoàng": {
+                "coords": [
+                    212.2,
+                    392.170763779528
+                ],
+                "page_num": 0
+            }
+        },
+        "ky_nhay": {
+            "coords": [
+                231.1125,
+                304.85076377952805
+            ],
+            "page_num": 0
+        },
+        "ngay_thang": {
+            "coords": [
+                334.1,
+                90.92176377952808
             ],
             "page_num": 0
         },
         "so_hieu": {
             "coords": [
-                94.624,
-                98.59871999999996
+                94.7,
+                90.90876377952804
             ],
             "page_num": 0
         }
@@ -93,8 +117,9 @@ Trả về file PDF đã được xóa vị trí ngày tháng và số hiệu v�
 
 ```
 "file": <File doc/docx>
-"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay)"
-"sign_name": "Tên người cần tìm (nếu cần)"
+"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay, toan_bo)"
+"sign_name": "Tên người cần tìm phân tách bởi dấu phẩy "," (nếu cần)"
+             "Tên người ký chính ở đầu, phía sau là người ký đồng trình"
 ```
 **Định dạng phản hồi**
 
