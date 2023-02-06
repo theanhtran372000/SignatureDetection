@@ -1,20 +1,31 @@
 import fitz
+import random
 
+def random_color():
+    r = random.uniform(0, 1)
+    g = random.uniform(0, 1)
+    b = random.uniform(0, 1)
+    return (r, g, b)
 
-def draw_rect(file_path, coords, dest_path):
+def draw_rect(file_path, placeholders, dest_path):
     doc = fitz.open(file_path)
 
-    for c in coords:
-        page = doc[c['page_num']]
-        coord = c['coords']
+    for holder in placeholders:
+        
+        page = doc[holder['page_num']]
+        x = holder['x']
+        y = holder['y']
+        w = holder['width']
+        h = holder['height']
+        
         page.draw_rect(
             [
-                coord[0],
-                coord[1],   # top-right
-                coord[0] + 5,
-                coord[1] + 5    # bottom-right
+                x,
+                y,   # top-right
+                x + w,
+                y + h    # bottom-right
             ],
-            color=(0, 1, 0),
+            color=random_color(),
             width=2
         )
 

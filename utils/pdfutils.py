@@ -48,6 +48,7 @@ def find_coordinates(file_path, textlist, side='l'):
 
                         results.append({
                             "page_num": i,
+                            "page_height": page.mediabox[3],
                             "coords": get_top_left(page, coords) if side == 'l' else get_top_right(page, coords),
                             "text": text
                         })

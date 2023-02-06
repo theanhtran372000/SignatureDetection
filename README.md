@@ -29,62 +29,104 @@ python main.py \
 - Content-Type: form-data
 
 ```
-"file": <File doc/docx>
-"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay, toan_bo)"
-"sign_name": "Tên người cần tìm phân tách bởi dấu phẩy "," (nếu cần)"
-             "Tên người ký chính ở đầu, phía sau là người ký đồng trình"
+"doc_file"              : <File doc/docx>
+"nguoi_ky_chinh"        : "Tên người ký chính"
+"nguoi_ky_dong_trinh"   : "Người ký đồng trình"
+                          "Ngăn cách bởi dấu phẩy"
+"so_ky_nhay"            : "Số lượng ký nháy"
+"so_ky_trinh"           : "Số lượng ký trình"
 ```
 
 **Định dạng phản hồi**
 
 ```
-// Ví dụ cho phản hồi của kiểu ký toan_bo
-// Với kiểu ky_chinh, ky_nhay và van_thu, định dang data tương tự
 {
     "results": {
         "dong_dau": {
-            "coords": [
-                376.4,
-                392.170763779528
-            ],
-            "page_num": 0
+            "height": 10,
+            "page_height": 841.889763779528,
+            "page_num": 0,
+            "width": 10,
+            "x": 376.4,
+            "y": 392.170763779528
         },
         "ky_chinh": {
-            "coords": [
-                396.4,
-                392.170763779528
-            ],
-            "page_num": 0
+            "height": 10,
+            "page_height": 841.889763779528,
+            "page_num": 0,
+            "width": 10,
+            "x": 396.4,
+            "y": 392.170763779528
         },
         "ky_dong_trinh": {
             "Lê Minh Hoàng": {
-                "coords": [
-                    212.2,
-                    392.170763779528
-                ],
-                "page_num": 0
+                "height": 10,
+                "page_height": 841.889763779528,
+                "page_num": 0,
+                "width": 10,
+                "x": 212.2,
+                "y": 392.170763779528
             }
         },
-        "ky_nhay": {
-            "coords": [
-                231.1125,
-                304.85076377952805
-            ],
-            "page_num": 0
-        },
+        "ky_nhay": [
+            {
+                "height": 10,
+                "page_height": 841.889763779528,
+                "page_num": 0,
+                "width": 10,
+                "x": 231.1125,
+                "y": 304.85076377952805
+            },
+            {
+                "height": 10,
+                "page_height": 841.889763779528,
+                "page_num": 0,
+                "width": 10,
+                "x": 241.1125,
+                "y": 304.85076377952805
+            }
+        ],
+        "ky_trinh": [
+            {
+                "height": 10,
+                "page_height": 841.889763779528,
+                "page_num": 0,
+                "width": 10,
+                "x": 536.2339999999999,
+                "y": 392.170763779528
+            },
+            {
+                "height": 10,
+                "page_height": 841.889763779528,
+                "page_num": 0,
+                "width": 10,
+                "x": 546.2339999999999,
+                "y": 392.170763779528
+            },
+            {
+                "height": 10,
+                "page_height": 841.889763779528,
+                "page_num": 0,
+                "width": 10,
+                "x": 556.2339999999999,
+                "y": 392.170763779528
+            }
+        ],
         "ngay_thang": {
-            "coords": [
-                334.1,
-                90.92176377952808
-            ],
-            "page_num": 0
+            "height": 10,
+            "page_height": 841.889763779528,
+            "page_num": 0,
+            "width": 10,
+            "x": 334.1,
+            "y": 90.92176377952808
         },
         "so_hieu": {
-            "coords": [
-                94.7,
-                90.90876377952804
-            ],
-            "page_num": 0
+            "height": 10,
+            "page_height": 841.889763779528,
+            "page_num": 0,
+            "width": 10,
+            "x": 94.7,
+            "y": 90.90876377952804
         }
     },
     "state": "success"
@@ -116,10 +158,12 @@ Trả về file PDF đã được xóa vị trí ngày tháng và số hiệu v�
 - Content-Type: form-data
 
 ```
-"file": <File doc/docx>
-"sign_type": "Loại ký (van_thu, ky_chinh, ky_nhay, toan_bo)"
-"sign_name": "Tên người cần tìm phân tách bởi dấu phẩy "," (nếu cần)"
-             "Tên người ký chính ở đầu, phía sau là người ký đồng trình"
+"doc_file"              : <File doc/docx>
+"nguoi_ky_chinh"        : "Tên người ký chính"
+"nguoi_ky_dong_trinh"   : "Người ký đồng trình"
+                          "Ngăn cách bởi dấu phẩy"
+"so_ky_nhay"            : "Số lượng ký nháy"
+"so_ky_trinh"           : "Số lượng ký trình"
 ```
 **Định dạng phản hồi**
 
