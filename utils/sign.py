@@ -10,7 +10,7 @@ from datetime import timedelta
 
 
 # Lấy tọa độ cho văn thư
-def van_thu(file_path, name):
+def van_thu(file_path, names):
     print('=== Lấy vị trí ký cho văn thư ===')
 
     results = {}
@@ -59,25 +59,27 @@ def van_thu(file_path, name):
     }
 
     # 3. Vị trí đóng dấu
-    print('2. Tìm vị trí đóng dấu')
-    keywords = [
-        name
-    ]
-    ans = find_coordinates(file_path, keywords)
-    if len(ans) == 0:
-        return 'doc_name_error'
+    if len(names) >= 1:
+        if names[0] != '':
+            print('3. Tìm vị trí đóng dấu')
+            keywords = [
+                names[0] # Tên đầu tiên là tên đóng dấu
+            ]
+            ans = find_coordinates(file_path, keywords)
+            if len(ans) == 0:
+                return 'doc_name_error'
 
-    # Hiệu chỉnh tọa độ
-    coords = ans[-1]['coords'] # Lấy kết quả cuối tìm được
-    coords = (
-        coords[0] - 20,
-        coords[1] - 110
-    )
+            # Hiệu chỉnh tọa độ
+            coords = ans[-1]['coords'] # Lấy kết quả cuối tìm được
+            coords = (
+                coords[0] - 20,
+                coords[1] - 110
+            )
 
-    results['dong_dau'] = {
-        "coords": coords,
-        "page_num": ans[-1]['page_num']
-    }
+            results['dong_dau'] = {
+                "coords": coords,
+                "page_num": ans[-1]['page_num']
+            }
 
     print('Hoàn thành sau {}s!'.format(
         timedelta(seconds=int(time.time() - start))))
@@ -116,45 +118,87 @@ def ky_nhay(file_path):
 
 
 # Lấy tọa độ ký chính
-def ky_chinh(file_path, name):
+def ky_chinh(file_path, names):
     print('=== Lấy vị trí ký chính ===')
 
     results = {}
     start = time.time()
 
-    # 1. Số hiệu văn bản
-    print('1. Tìm vị trí ký chính')
-    keywords = [name]
-    ans = find_coordinates(file_path, keywords)
-    if len(ans) == 0:
-        return 'doc_name_error'
+    if len(names) > 0:
+        # 1. Tìm vị trí ký chính
+        print('1. Tìm vị trí ký chính')
+        keywords = [names[0]]
+        ans = find_coordinates(file_path, keywords)
+        if len(ans) == 0:
+            return 'doc_name_error'
 
-    # Hiệu chỉnh tọa độ
-    coords = ans[-1]['coords'] # Lấy kết quả cuối tìm được
-    coords = (
-        coords[0],
-        coords[1] - 110
-    )
+        # Hiệu chỉnh tọa độ
+        coords = ans[-1]['coords'] # Lấy kết quả cuối tìm được
+        coords = (
+            coords[0],
+            coords[1] - 110
+        )
 
-    results['ky_chinh'] = {
-        "coords": coords,
-        "page_num": ans[-1]['page_num']
-    }
+        results['ky_chinh'] = {
+            "coords": coords,
+            "page_num": ans[-1]['page_num']
+        }
+        
+        if len(names) >= 1:
+            # Tìm vị trí ký đồng trình
+            print('1. Tìm vị trí ký đồng trình')
+            results ['ky_dong_trinh'] = {}
+            
+            for name in names[1:]:
+                keywords = [name]
+                ans = find_coordinates(file_path, keywords)
+                if len(ans) == 0:
+                    return 'doc_name_error'
+
+                # Hiệu chỉnh tọa độ
+                coords = ans[-1]['coords'] # Lấy kết quả cuối tìm được
+                coords = (
+                    coords[0],
+                    coords[1] - 110
+                )
+
+                results['ky_dong_trinh'][name] = {
+                    "coords": coords,
+                    "page_num": ans[-1]['page_num']
+                }
 
     print('Hoàn thành sau {}s!'.format(
         timedelta(seconds=int(time.time() - start))))
     return results
 
 
-def tim_vi_tri(file_path, sign_type, sign_name):
+def tim_vi_tri(file_path, sign_type, sign_names):
     if sign_type == 'van_thu':
-        return van_thu(file_path, sign_name)
+        return van_thu(file_path, sign_names)
 
     elif sign_type == 'ky_nhay':
         return ky_nhay(file_path)
 
     elif sign_type == 'ky_chinh':
-        return ky_chinh(file_path, sign_name)
+        return ky_chinh(file_path, sign_names)
+
+    elif sign_type == 'toan_bo':
+        vt = van_thu(file_path, sign_names)
+        if type(vt) == str:
+            return vt
+        
+        kn = ky_nhay(file_path)
+        if type(kn) == str:
+            return kn
+        
+        kc = ky_chinh(file_path, sign_names)
+        if type(kc) == str:
+            return kc
+        
+        vt.update(kn)
+        vt.update(kc)
+        
+        return vt
 
     else:
         print('Không tồn tại loại ký {}!'.format(sign_type))
