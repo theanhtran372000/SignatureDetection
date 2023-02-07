@@ -33,6 +33,7 @@ python main.py \
 "nguoi_ky_chinh"        : "Tên người ký chính"
 "nguoi_ky_dong_trinh"   : "Người ký đồng trình"
                           "Ngăn cách bởi dấu phẩy"
+                          "Nếu không có có thể bỏ trường này hoặc để chuỗi rỗng"
 "so_ky_nhay"            : "Số lượng ký nháy"
 "so_ky_trinh"           : "Số lượng ký trình"
 ```
@@ -162,6 +163,7 @@ Trả về file PDF đã được xóa vị trí ngày tháng và số hiệu v�
 "nguoi_ky_chinh"        : "Tên người ký chính"
 "nguoi_ky_dong_trinh"   : "Người ký đồng trình"
                           "Ngăn cách bởi dấu phẩy"
+                          "Nếu không có có thể bỏ trường này hoặc để chuỗi rỗng"
 "so_ky_nhay"            : "Số lượng ký nháy"
 "so_ky_trinh"           : "Số lượng ký trình"
 ```
