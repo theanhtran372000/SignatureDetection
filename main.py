@@ -30,10 +30,16 @@ def get_sign_position():
     # Query
     content = request.form
     nguoi_ky_chinh          = content['nguoi_ky_chinh']
-    nguoi_ky_dong_trinh     = content['nguoi_ky_dong_trinh']
-    nguoi_ky_dong_trinh     = [name.strip() for name in nguoi_ky_dong_trinh.split(',')]
     so_ky_nhay              = int(content['so_ky_nhay'])
     so_ky_trinh             = int(content['so_ky_trinh'])
+    if 'nguoi_ky_dong_trinh' in content:
+        if content['nguoi_ky_dong_trinh'] != '':
+            nguoi_ky_dong_trinh     = content['nguoi_ky_dong_trinh']
+            nguoi_ky_dong_trinh     = [name.strip() for name in nguoi_ky_dong_trinh.split(',')]
+        else:
+            nguoi_ky_dong_trinh = []
+    else:
+        nguoi_ky_dong_trinh = []
 
     print('Get request:')
     print('- File: ', file.filename)
@@ -78,7 +84,7 @@ def get_sign_position():
         elif results == 'doc_end_error':
             msg = "Không tìm thấy vị trí kết thúc văn bản!"
         elif results == 'doc_name_error':
-            msg = "Không tìm thấy {}".format(', '.join(nguoi_ky_chinh, nguoi_ky_dong_trinh))
+            msg = "Không tìm thấy tên người {} {}".format(nguoi_ky_chinh, nguoi_ky_dong_trinh)
         
         return {
             "state": 'error',
@@ -107,10 +113,16 @@ def preview_sign_position():
     # Query
     content = request.form
     nguoi_ky_chinh          = content['nguoi_ky_chinh']
-    nguoi_ky_dong_trinh     = content['nguoi_ky_dong_trinh']
-    nguoi_ky_dong_trinh     = [name.strip() for name in nguoi_ky_dong_trinh.split(',')]
     so_ky_nhay              = int(content['so_ky_nhay'])
     so_ky_trinh             = int(content['so_ky_trinh'])
+    if 'nguoi_ky_dong_trinh' in content:
+        if content['nguoi_ky_dong_trinh'] != '':
+            nguoi_ky_dong_trinh     = content['nguoi_ky_dong_trinh']
+            nguoi_ky_dong_trinh     = [name.strip() for name in nguoi_ky_dong_trinh.split(',')]
+        else:
+            nguoi_ky_dong_trinh = []
+    else:
+        nguoi_ky_dong_trinh = []
 
     print('Get request:')
     print('- File: ', file.filename)
@@ -155,7 +167,7 @@ def preview_sign_position():
         elif results == 'doc_end_error':
             msg = "Không tìm thấy vị trí kết thúc văn bản!"
         elif results == 'doc_name_error':
-            msg = "Không tìm thấy {}".format(', '.join(nguoi_ky_chinh, nguoi_ky_dong_trinh))
+            msg = "Không tìm thấy tên người {} {}".format(nguoi_ky_chinh, nguoi_ky_dong_trinh)
         
         return {
             "state": 'error',
