@@ -84,7 +84,7 @@ def get_sign_position():
         elif results == 'doc_end_error':
             msg = "Không tìm thấy vị trí kết thúc văn bản!"
         elif results == 'doc_name_error':
-            msg = "Không tìm thấy {}".format(', '.join(nguoi_ky_chinh, nguoi_ky_dong_trinh))
+            msg = "Không tìm thấy tên người {} {}".format(nguoi_ky_chinh, nguoi_ky_dong_trinh)
         
         return {
             "state": 'error',
@@ -167,7 +167,7 @@ def preview_sign_position():
         elif results == 'doc_end_error':
             msg = "Không tìm thấy vị trí kết thúc văn bản!"
         elif results == 'doc_name_error':
-            msg = "Không tìm thấy {}".format(', '.join(nguoi_ky_dong_trinh.append(nguoi_ky_chinh)))
+            msg = "Không tìm thấy tên người {} {}".format(nguoi_ky_chinh, nguoi_ky_dong_trinh)
         
         return {
             "state": 'error',
