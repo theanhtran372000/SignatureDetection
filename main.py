@@ -261,7 +261,7 @@ def main(args):
     os.makedirs(args.save_dir, exist_ok=True)
 
     # Run app
-    app.run(host='0.0.0.0', port=args.port)
+    app.run(host='0.0.0.0', port=args.port, threaded=True)
 
 
 if __name__ == '__main__':
