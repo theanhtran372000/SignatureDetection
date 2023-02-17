@@ -1,7 +1,10 @@
 import os
 import argparse
+import time
+from pathlib import Path
+from multiprocessing import Lock
 
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, after_this_request
 from flask_cors import CORS
 
 # from utils import doc_to_docx, docx_to_pdf
@@ -10,22 +13,35 @@ from utils import preprocess_doc
 from utils import tim_vi_tri
 # from utils import VAN_THU, KY_CHINH, KY_NHAY
 from utils import draw_rect
+from utils import get_random_string, get_time_last_digit
 
 # Flask init
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+# Configs
+N_RANDOM_STRING = 10
+N_LAST_DIGIT = 6
+
+lock = Lock()
 
 # Lấy tất cả vị trí trong văn bản
 @app.route('/get_sign_position', methods=['POST'])
 def get_sign_position():
+    
+    global N_RANDOM_STRING
+    global N_LAST_DIGIT
+    global lock
 
     # Extract info from request #
     # Files
     file = request.files['doc_file']
-    file.save(os.path.join(args.save_dir, file.filename))
-    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+    ext = file.filename.split('.')[-1]
+    
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(get_random_string(N_RANDOM_STRING), get_time_last_digit(N_LAST_DIGIT), ext))
+    file.save(save_path)
+    doc_path = os.path.join(os.getcwd(), save_path)
 
     # Query
     content = request.form
@@ -53,7 +69,6 @@ def get_sign_position():
     # Check extension
     print('Process')
     print('= Validate file extention')
-    ext = doc_path.split('.')[-1]
     if ext not in ['doc', 'docx']:
         print("{} not supported!".format(ext))
         return {
@@ -61,8 +76,9 @@ def get_sign_position():
             "message": "{} not supported!".format(ext)
         }, 400
 
-    print('= Convert file to pdf')
-    origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
+    with lock:
+        print('= Convert file to pdf')
+        origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
     
     print('= Find sign position')
     results = tim_vi_tri(
@@ -91,10 +107,19 @@ def get_sign_position():
             "message": msg
         }, 400
         
-    # Remove all file
-    os.remove(doc_path)
-    os.remove(origin_pdf_path)
-    print('Removed all files!')
+    # Remove all file after send request
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(doc_path)
+            os.remove(origin_pdf_path)
+            print('Removed all files!')
+            
+        except Exception as error:
+            print("Error: Can't remove files!")
+            print("Error: ", error)
+            
+        return response
 
     return {
         "state": "success",
@@ -103,12 +128,19 @@ def get_sign_position():
 
 @app.route('/preview_sign_position', methods=['POST'])
 def preview_sign_position():
+    
+    global N_RANDOM_STRING
+    global N_LAST_DIGIT
+    global lock
 
     # Extract info from request #
     # Files
     file = request.files['doc_file']
-    file.save(os.path.join(args.save_dir, file.filename))
-    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+    ext = file.filename.split('.')[-1]
+    
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(get_random_string(N_RANDOM_STRING), get_time_last_digit(N_LAST_DIGIT), ext))
+    file.save(save_path)
+    doc_path = os.path.join(os.getcwd(), save_path)
 
     # Query
     content = request.form
@@ -136,7 +168,6 @@ def preview_sign_position():
     # Check extension
     print('Process')
     print('= Validate file extention')
-    ext = doc_path.split('.')[-1]
     if ext not in ['doc', 'docx']:
         print("{} not supported!".format(ext))
         return {
@@ -144,8 +175,9 @@ def preview_sign_position():
             "message": "{} not supported!".format(ext)
         }, 400
 
-    print('= Convert file to pdf')
-    origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
+    with lock:
+        print('= Convert file to pdf')
+        origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
     
     print('= Find sign position')
     results = tim_vi_tri(
@@ -186,16 +218,26 @@ def preview_sign_position():
             else:
                 placeholders.extend(e)
     
-    dest_path = os.path.join(args.save_dir, 'result.pdf')
+    dest_path = origin_pdf_path.replace('.pdf', '_result.pdf')
     
     # Preview
     print("= Draw coordinates")
     draw_rect(origin_pdf_path, placeholders, dest_path)
     
-    # Remove all file
-    os.remove(doc_path)
-    os.remove(origin_pdf_path)
-    print('Removed all files!')
+    # Remove all file after send request
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(doc_path)
+            os.remove(origin_pdf_path)
+            os.remove(dest_path)
+            print('Removed all files!')
+            
+        except Exception as error:
+            print("Error: Can't remove files!")
+            print("Error: ", error)
+            
+        return response
 
     return send_file(dest_path), 200
 
@@ -203,17 +245,23 @@ def preview_sign_position():
 # Convert file doc/docx to PDF and remove datetime, docnum
 @app.route('/convert', methods=["POST"])
 def to_pdf():
+    
+    global N_RANDOM_STRING
+    global N_LAST_DIGIT
+    
     # Extract info from request
     file = request.files['doc_file']
-    file.save(os.path.join(args.save_dir, file.filename))
-    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+    ext = file.filename.split('.')[-1]
+    
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(get_random_string(N_RANDOM_STRING), get_time_last_digit(N_LAST_DIGIT), ext))
+    file.save(save_path)
+    doc_path = os.path.join(os.getcwd(), save_path)
 
     print('Get request:')
     print('- File: ', file.filename)
     print()
 
     # Convert doc to docx
-    ext = file.filename.split('.')[-1]
     if ext not in ['doc', 'docx']:
         print("{} not supported!".format(ext))
         return {
@@ -222,24 +270,34 @@ def to_pdf():
         }, 400
     
     if ext == 'doc':
-        print('= Convert to docx')
-        doc_path = linux_to_docx(doc_path, args.save_dir)
+        with lock:
+            print('= Convert to docx')
+            doc_path = linux_to_docx(doc_path, args.save_dir)
     
     # Preprocess file
     print('= Remove redundant words')
     process_doc_path = doc_path.replace('.docx', '_process.docx')
     preprocess_doc(doc_path, process_doc_path)
-
+    
     # Convert to pdf
-    print('= Convert to PDF')
-    # process_pdf_path = doc_path.replace('.docx', '_process.pdf')
-    # process_pdf_path = docx_to_pdf(process_doc_path, process_pdf_path)
-    process_pdf_path = linux_to_pdf(process_doc_path, args.save_dir)
+    with lock:
+        print('= Convert to PDF')
+        process_pdf_path = linux_to_pdf(process_doc_path, args.save_dir)
 
-    # Remove all file
-    os.remove(doc_path)
-    os.remove(process_doc_path)
-    print('Removed all files!')
+    # Remove all file after send request
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(doc_path)
+            os.remove(process_doc_path)
+            os.remove(process_pdf_path)
+            print('Removed all files!')
+            
+        except Exception as error:
+            print("Error: Can't remove files!")
+            print("Error: ", error)
+            
+        return response
 
     return send_file(process_pdf_path), 200
 
