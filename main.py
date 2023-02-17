@@ -1,7 +1,8 @@
 import os
 import argparse
 import time
-from uuid import uuid4
+from pathlib import Path
+from multiprocessing import Lock
 
 from flask import Flask, request, send_file, after_this_request
 from flask_cors import CORS
@@ -12,24 +13,33 @@ from utils import preprocess_doc
 from utils import tim_vi_tri
 # from utils import VAN_THU, KY_CHINH, KY_NHAY
 from utils import draw_rect
+from utils import get_random_string, get_time_last_digit
 
 # Flask init
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+# Configs
+N_RANDOM_STRING = 10
+N_LAST_DIGIT = 6
+
+lock = Lock()
 
 # Lấy tất cả vị trí trong văn bản
 @app.route('/get_sign_position', methods=['POST'])
 def get_sign_position():
+    
+    global N_RANDOM_STRING
+    global N_LAST_DIGIT
+    global lock
 
     # Extract info from request #
     # Files
     file = request.files['doc_file']
     ext = file.filename.split('.')[-1]
     
-    timestamp = str(int(time.time()) % 1000000).zfill(6)
-    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(uuid4(), timestamp, ext))
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(get_random_string(N_RANDOM_STRING), get_time_last_digit(N_LAST_DIGIT), ext))
     file.save(save_path)
     doc_path = os.path.join(os.getcwd(), save_path)
 
@@ -66,8 +76,9 @@ def get_sign_position():
             "message": "{} not supported!".format(ext)
         }, 400
 
-    print('= Convert file to pdf')
-    origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
+    with lock:
+        print('= Convert file to pdf')
+        origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
     
     print('= Find sign position')
     results = tim_vi_tri(
@@ -117,14 +128,17 @@ def get_sign_position():
 
 @app.route('/preview_sign_position', methods=['POST'])
 def preview_sign_position():
+    
+    global N_RANDOM_STRING
+    global N_LAST_DIGIT
+    global lock
 
     # Extract info from request #
     # Files
     file = request.files['doc_file']
     ext = file.filename.split('.')[-1]
     
-    timestamp = str(int(time.time()) % 1000000).zfill(6)
-    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(uuid4(), timestamp, ext))
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(get_random_string(N_RANDOM_STRING), get_time_last_digit(N_LAST_DIGIT), ext))
     file.save(save_path)
     doc_path = os.path.join(os.getcwd(), save_path)
 
@@ -161,8 +175,9 @@ def preview_sign_position():
             "message": "{} not supported!".format(ext)
         }, 400
 
-    print('= Convert file to pdf')
-    origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
+    with lock:
+        print('= Convert file to pdf')
+        origin_pdf_path = linux_to_pdf(doc_path, args.save_dir)
     
     print('= Find sign position')
     results = tim_vi_tri(
@@ -230,12 +245,15 @@ def preview_sign_position():
 # Convert file doc/docx to PDF and remove datetime, docnum
 @app.route('/convert', methods=["POST"])
 def to_pdf():
+    
+    global N_RANDOM_STRING
+    global N_LAST_DIGIT
+    
     # Extract info from request
     file = request.files['doc_file']
     ext = file.filename.split('.')[-1]
     
-    timestamp = str(int(time.time()) % 1000000).zfill(6)
-    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(uuid4(), timestamp, ext))
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(get_random_string(N_RANDOM_STRING), get_time_last_digit(N_LAST_DIGIT), ext))
     file.save(save_path)
     doc_path = os.path.join(os.getcwd(), save_path)
 
@@ -252,19 +270,19 @@ def to_pdf():
         }, 400
     
     if ext == 'doc':
-        print('= Convert to docx')
-        doc_path = linux_to_docx(doc_path, args.save_dir)
+        with lock:
+            print('= Convert to docx')
+            doc_path = linux_to_docx(doc_path, args.save_dir)
     
     # Preprocess file
     print('= Remove redundant words')
     process_doc_path = doc_path.replace('.docx', '_process.docx')
     preprocess_doc(doc_path, process_doc_path)
-
+    
     # Convert to pdf
-    print('= Convert to PDF')
-    # process_pdf_path = doc_path.replace('.docx', '_process.pdf')
-    # process_pdf_path = docx_to_pdf(process_doc_path, process_pdf_path)
-    process_pdf_path = linux_to_pdf(process_doc_path, args.save_dir)
+    with lock:
+        print('= Convert to PDF')
+        process_pdf_path = linux_to_pdf(process_doc_path, args.save_dir)
 
     # Remove all file after send request
     @after_this_request
