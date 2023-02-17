@@ -1,7 +1,9 @@
 import os
 import argparse
+import time
+from uuid import uuid4
 
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, after_this_request
 from flask_cors import CORS
 
 # from utils import doc_to_docx, docx_to_pdf
@@ -24,8 +26,12 @@ def get_sign_position():
     # Extract info from request #
     # Files
     file = request.files['doc_file']
-    file.save(os.path.join(args.save_dir, file.filename))
-    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+    ext = file.filename.split('.')[-1]
+    
+    timestamp = str(int(time.time()) % 1000000).zfill(6)
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(uuid4(), timestamp, ext))
+    file.save(save_path)
+    doc_path = os.path.join(os.getcwd(), save_path)
 
     # Query
     content = request.form
@@ -53,7 +59,6 @@ def get_sign_position():
     # Check extension
     print('Process')
     print('= Validate file extention')
-    ext = doc_path.split('.')[-1]
     if ext not in ['doc', 'docx']:
         print("{} not supported!".format(ext))
         return {
@@ -91,10 +96,19 @@ def get_sign_position():
             "message": msg
         }, 400
         
-    # Remove all file
-    os.remove(doc_path)
-    os.remove(origin_pdf_path)
-    print('Removed all files!')
+    # Remove all file after send request
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(doc_path)
+            os.remove(origin_pdf_path)
+            print('Removed all files!')
+            
+        except Exception as error:
+            print("Error: Can't remove files!")
+            print("Error: ", error)
+            
+        return response
 
     return {
         "state": "success",
@@ -107,8 +121,12 @@ def preview_sign_position():
     # Extract info from request #
     # Files
     file = request.files['doc_file']
-    file.save(os.path.join(args.save_dir, file.filename))
-    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+    ext = file.filename.split('.')[-1]
+    
+    timestamp = str(int(time.time()) % 1000000).zfill(6)
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(uuid4(), timestamp, ext))
+    file.save(save_path)
+    doc_path = os.path.join(os.getcwd(), save_path)
 
     # Query
     content = request.form
@@ -136,7 +154,6 @@ def preview_sign_position():
     # Check extension
     print('Process')
     print('= Validate file extention')
-    ext = doc_path.split('.')[-1]
     if ext not in ['doc', 'docx']:
         print("{} not supported!".format(ext))
         return {
@@ -186,16 +203,26 @@ def preview_sign_position():
             else:
                 placeholders.extend(e)
     
-    dest_path = os.path.join(args.save_dir, 'result.pdf')
+    dest_path = origin_pdf_path.replace('.pdf', '_result.pdf')
     
     # Preview
     print("= Draw coordinates")
     draw_rect(origin_pdf_path, placeholders, dest_path)
     
-    # Remove all file
-    os.remove(doc_path)
-    os.remove(origin_pdf_path)
-    print('Removed all files!')
+    # Remove all file after send request
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(doc_path)
+            os.remove(origin_pdf_path)
+            os.remove(dest_path)
+            print('Removed all files!')
+            
+        except Exception as error:
+            print("Error: Can't remove files!")
+            print("Error: ", error)
+            
+        return response
 
     return send_file(dest_path), 200
 
@@ -205,15 +232,18 @@ def preview_sign_position():
 def to_pdf():
     # Extract info from request
     file = request.files['doc_file']
-    file.save(os.path.join(args.save_dir, file.filename))
-    doc_path = os.path.join(os.getcwd(), args.save_dir, file.filename)
+    ext = file.filename.split('.')[-1]
+    
+    timestamp = str(int(time.time()) % 1000000).zfill(6)
+    save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(uuid4(), timestamp, ext))
+    file.save(save_path)
+    doc_path = os.path.join(os.getcwd(), save_path)
 
     print('Get request:')
     print('- File: ', file.filename)
     print()
 
     # Convert doc to docx
-    ext = file.filename.split('.')[-1]
     if ext not in ['doc', 'docx']:
         print("{} not supported!".format(ext))
         return {
@@ -236,10 +266,20 @@ def to_pdf():
     # process_pdf_path = docx_to_pdf(process_doc_path, process_pdf_path)
     process_pdf_path = linux_to_pdf(process_doc_path, args.save_dir)
 
-    # Remove all file
-    os.remove(doc_path)
-    os.remove(process_doc_path)
-    print('Removed all files!')
+    # Remove all file after send request
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(doc_path)
+            os.remove(process_doc_path)
+            os.remove(process_pdf_path)
+            print('Removed all files!')
+            
+        except Exception as error:
+            print("Error: Can't remove files!")
+            print("Error: ", error)
+            
+        return response
 
     return send_file(process_pdf_path), 200
 
