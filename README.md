@@ -144,6 +144,8 @@ python main.py \
 
 ```
 "file": <File doc/docx>
+"xoa_so": 0 hoặc 1
+"xoa_ngay": 0 hoặc 1
 ```
 
 **Định dạng phản hồi**
