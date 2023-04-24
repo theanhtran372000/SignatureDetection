@@ -253,6 +253,11 @@ def to_pdf():
     file = request.files['doc_file']
     ext = file.filename.split('.')[-1]
     
+    content = request.form
+    
+    del_num = bool(int(content['xoa_so'])) if 'xoa_so' in content else True
+    del_date = bool(int(content['xoa_ngay'])) if 'xoa_ngay' in content else True
+    
     save_path = os.path.join(args.save_dir, '{}-{}.{}'.format(get_random_string(N_RANDOM_STRING), get_time_last_digit(N_LAST_DIGIT), ext))
     file.save(save_path)
     doc_path = os.path.join(os.getcwd(), save_path)
@@ -277,7 +282,7 @@ def to_pdf():
     # Preprocess file
     print('= Remove redundant words')
     process_doc_path = doc_path.replace('.docx', '_process.docx')
-    preprocess_doc(doc_path, process_doc_path)
+    preprocess_doc(doc_path, process_doc_path, del_num, del_date)
     
     # Convert to pdf
     with lock:
