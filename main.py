@@ -94,13 +94,13 @@ def get_sign_position():
         msg = "Lỗi không xác định!"
         
         if results == 'doc_number_error':
-            msg = "Không tìm thấy số hiệu văn bản!"
+            msg = "Không tìm thấy số hiệu văn bản trong văn bản đính kèm!"
         elif results == 'doc_date_error':
-            msg = "Không tìm thấy ngày tháng năm!"
+            msg = "Không tìm thấy ngày tháng năm trong văn bản đính kèm!"
         elif results == 'doc_end_error':
             msg = "Không tìm thấy vị trí kết thúc văn bản!"
         elif results == 'doc_name_error':
-            msg = "Không tìm thấy tên người {} {}".format(nguoi_ky_chinh, nguoi_ky_dong_trinh)
+            msg = "Không tìm thấy tên cán bộ {} {} trong văn bản đính kèm!".format(nguoi_ky_chinh, nguoi_ky_dong_trinh)
         
         return {
             "state": 'error',
