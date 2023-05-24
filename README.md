@@ -18,6 +18,10 @@ python main.py \
     --port=[Cổng chạy server] \
     --save_dir[Đường dẫn tới thư mục lưu trữ]
 ```
+3. Sử dụng docker
+```
+docker run -p 2000:2000/tcp theanhtran/auto-signing
+```
 
 ## Hướng dẫn sử dụng
 ### 1. Tìm vị trí ký
